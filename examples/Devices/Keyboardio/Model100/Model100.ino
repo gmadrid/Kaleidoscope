@@ -281,7 +281,7 @@ KEYMAPS(
    ___,
 
    M(MACRO_VERSION_INFO),  ___, ___,___,     ___,             ___,  ___,
-   ___,                    ___, ___,___,     ___,             ___,  ___,
+   LCTRL(LALT(Key_Enter)),                    ___, ___,___,     ___,             ___,  ___,
                            ___, ___,___,     ___,             ___,  ___,
    ___,                    ___, ___,___,     ___,             ___,  ___,
    ___, ___, ___, ___,
@@ -295,10 +295,10 @@ KEYMAPS(
    ___, Key_Delete, ___, ___,
    ___,
 
-   Consumer_ScanPreviousTrack, Key_F6,                 Key_F7,                   Key_F8,                   Key_F9,          Key_F10,          Key_F11,
-   Consumer_PlaySlashPause,    Consumer_ScanNextTrack, Key_LeftCurlyBracket,     Key_RightCurlyBracket,    Key_LeftBracket, Key_RightBracket, Key_F12,
+   ___,                        Key_F6,                 Key_F7,                   Key_F8,                   Key_F9,          Key_F10,          Key_F11,
+   ___,                        ___,                    Key_LeftCurlyBracket,     Key_RightCurlyBracket,    Key_LeftBracket, Key_RightBracket, Key_F12,
                                Key_LeftArrow,          Key_DownArrow,            Key_UpArrow,              Key_RightArrow,  ___,              ___,
-   Key_PcApplication,          Consumer_Mute,          Consumer_VolumeDecrement, Consumer_VolumeIncrement, ___,             Key_Backslash,    Key_Pipe,
+   Key_PcApplication,          ___,                    ___,                      ___,                      ___,             Key_Backslash,    Key_Pipe,
    ___, ___, Key_Enter, ___,
    ___)
 ) // KEYMAPS(
@@ -468,7 +468,7 @@ KALEIDOSCOPE_INIT_PLUGINS(
   // Shifts when held. SpaceCadetConfig lets Chrysalis configure some aspects of
   // the plugin.
   SpaceCadet,
-  SpaceCadetConfig,
+  //  SpaceCadetConfig,
 
   // Focus allows bi-directional communication with the host, and is the
   // interface through which the keymap in EEPROM can be edited.
