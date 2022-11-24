@@ -55,6 +55,7 @@ enum {
 
 enum {
   QWERTY,
+  COLEMAK,
   FUN,
   UPPER
 };
@@ -71,6 +72,19 @@ KEYMAPS(
                      ,Key_Y     ,Key_U      ,Key_I     ,Key_O      ,Key_P
                      ,Key_H     ,Key_J      ,Key_K     ,Key_L      ,Key_Semicolon
        ,Key_Backslash,Key_N     ,Key_M      ,Key_Comma ,Key_Period ,Key_Slash
+       ,Key_LeftAlt  ,Key_Space ,MO(FUN)    ,Key_Minus ,Key_Quote  ,Key_Enter
+  ),
+
+  [COLEMAK] = KEYMAP_STACKED
+  (
+       Key_Q   ,Key_W   ,Key_F       ,Key_P         ,Key_G
+      ,Key_A   ,Key_R   ,Key_S       ,Key_T         ,Key_D
+      ,Key_Z   ,Key_X   ,Key_C       ,Key_V         ,Key_B, Key_Backtick
+      ,Key_Esc ,Key_Tab ,Key_LeftGui ,Key_LeftShift ,Key_Backspace ,Key_LeftControl
+
+                     ,Key_J     ,Key_L      ,Key_U     ,Key_Y      ,Key_Semicolon
+                     ,Key_H     ,Key_N      ,Key_E     ,Key_I      ,Key_O
+       ,Key_Backslash,Key_K     ,Key_M      ,Key_Comma ,Key_Period ,Key_Slash
        ,Key_LeftAlt  ,Key_Space ,MO(FUN)    ,Key_Minus ,Key_Quote  ,Key_Enter
   ),
 
@@ -97,7 +111,7 @@ KEYMAPS(
                 ,Key_UpArrow   ,Key_F7              ,Key_F8          ,Key_F9         ,Key_F10
                 ,Key_DownArrow ,Key_F4              ,Key_F5          ,Key_F6         ,Key_F11
       ,___      ,XXX           ,Key_F1              ,Key_F2          ,Key_F3         ,Key_F12
-      ,___      ,___           ,MoveToLayer(QWERTY) ,Key_PrintScreen ,Key_ScrollLock ,Consumer_PlaySlashPause
+      ,___      ,___           ,MoveToLayer(QWERTY) ,MoveToLayer(COLEMAK) ,Key_ScrollLock ,Consumer_PlaySlashPause
    )
 )
 // clang-format on
