@@ -22,18 +22,8 @@
 #endif
 
 #include "Kaleidoscope.h"
-#include "Kaleidoscope-EEPROM-Settings.h"
-#include "Kaleidoscope-EEPROM-Keymap.h"
-#include "Kaleidoscope-Escape-OneShot.h"
-#include "Kaleidoscope-FirmwareVersion.h"
-#include "Kaleidoscope-FocusSerial.h"
 #include "Kaleidoscope-Macros.h"
-#include "Kaleidoscope-MouseKeys.h"
-#include "Kaleidoscope-OneShot.h"
 #include "Kaleidoscope-Qukeys.h"
-#include "Kaleidoscope-SpaceCadet.h"
-#include "Kaleidoscope-DynamicMacros.h"
-#include "Kaleidoscope-LayerNames.h"
 
 #define MO(n) ShiftToLayer(n)
 #define TG(n) LockLayer(n)
@@ -42,6 +32,15 @@ enum {
   MACRO_QWERTY,
   MACRO_VERSION_INFO
 };
+
+enum {
+  QWERTY,
+  COLEMAK,
+  LOWER,
+  UPPER,
+  FUN,
+};
+
 
 #define Key_Exclamation LSHIFT(Key_1)
 #define Key_At          LSHIFT(Key_2)
@@ -52,13 +51,27 @@ enum {
 #define Key_And         LSHIFT(Key_7)
 #define Key_Star        LSHIFT(Key_8)
 #define Key_Plus        LSHIFT(Key_Equals)
+#define Key_LOWER       MO(LOWER)
+#define Key_UPPER       MO(UPPER)
 
-enum {
-  QWERTY,
-  COLEMAK,
-  FUN,
-  UPPER
-};
+
+// These are the bottom "modifier" row for both QWERTY and COLEMAK. I want them to be the same both places but DRY.
+#define MOD_ROW_LEFT  ,Key_Esc ,Key_Tab ,Key_LeftGui ,Key_LeftShift ,Key_Backspace ,Key_LeftControl
+#define MOD_ROW_RIGHT       ,Key_LeftAlt  ,Key_Space ,MO(FUN)    ,Key_Minus ,Key_Quote  ,Key_Enter
+
+#define NEW_MOD_ROW_LEFT  ,Key_LOWER ,Key_Esc ,Key_Tab ,Key_LeftGui ,Key_Backspace ,Key_LeftControl
+#define NEW_MOD_ROW_RIGHT ,Key_LeftAlt ,Key_Space ,Key_Minus ,Key_Quote ,Key_LeftShift ,Key_UPPER
+
+
+// Conceptually, a QWERTY and COLEMAK lower layer,
+// - a LOWER key that is numbers and programmer's punctuation (with cursors?)
+// - an UPPER key that is FKeys and movement keys (including cursors?)
+// - a SPECIAL layer that overlays, but is full when both LOWER/UPPER are pressed. This is mainly for weird shit.
+//   (e.g., querty/colemak switching, media keys)
+//
+// In order to switch back to the proper main layer, we have to stack them (and not move to them.)
+// For that reason, all layers are basically full.
+
 
 // clang-format off
 KEYMAPS(
@@ -67,12 +80,12 @@ KEYMAPS(
        Key_Q   ,Key_W   ,Key_E       ,Key_R         ,Key_T
       ,Key_A   ,Key_S   ,Key_D       ,Key_F         ,Key_G
       ,Key_Z   ,Key_X   ,Key_C       ,Key_V         ,Key_B, Key_Backtick
-      ,Key_Esc ,Key_Tab ,Key_LeftGui ,Key_LeftShift ,Key_Backspace ,Key_LeftControl
+      NEW_MOD_ROW_LEFT
 
                      ,Key_Y     ,Key_U      ,Key_I     ,Key_O      ,Key_P
                      ,Key_H     ,Key_J      ,Key_K     ,Key_L      ,Key_Semicolon
-       ,Key_Backslash,Key_N     ,Key_M      ,Key_Comma ,Key_Period ,Key_Slash
-       ,Key_LeftAlt  ,Key_Space ,MO(FUN)    ,Key_Minus ,Key_Quote  ,Key_Enter
+       ,Key_Enter    ,Key_N     ,Key_M      ,Key_Comma ,Key_Period ,Key_Slash
+       NEW_MOD_ROW_RIGHT
   ),
 
   [COLEMAK] = KEYMAP_STACKED
@@ -80,97 +93,67 @@ KEYMAPS(
        Key_Q   ,Key_W   ,Key_F       ,Key_P         ,Key_G
       ,Key_A   ,Key_R   ,Key_S       ,Key_T         ,Key_D
       ,Key_Z   ,Key_X   ,Key_C       ,Key_V         ,Key_B, Key_Backtick
-      ,Key_Esc ,Key_Tab ,Key_LeftGui ,Key_LeftShift ,Key_Backspace ,Key_LeftControl
+      NEW_MOD_ROW_LEFT
 
                      ,Key_J     ,Key_L      ,Key_U     ,Key_Y      ,Key_Semicolon
                      ,Key_H     ,Key_N      ,Key_E     ,Key_I      ,Key_O
-       ,Key_Backslash,Key_K     ,Key_M      ,Key_Comma ,Key_Period ,Key_Slash
-       ,Key_LeftAlt  ,Key_Space ,MO(FUN)    ,Key_Minus ,Key_Quote  ,Key_Enter
+       ,Key_Enter    ,Key_K     ,Key_M      ,Key_Comma ,Key_Period ,Key_Slash
+       NEW_MOD_ROW_RIGHT
   ),
 
-  [FUN] = KEYMAP_STACKED
+  [LOWER] = KEYMAP_STACKED
   (
-       Key_Exclamation ,Key_At           ,Key_UpArrow   ,Key_Dollar           ,Key_Percent
-      ,Key_LeftParen   ,Key_LeftArrow    ,Key_DownArrow ,Key_RightArrow       ,Key_RightParen
-      ,Key_LeftBracket ,Key_RightBracket ,Key_Hash      ,Key_LeftCurlyBracket ,Key_RightCurlyBracket ,Key_Caret
-      ,TG(UPPER)       ,Key_Insert       ,Key_LeftGui   ,Key_LeftShift        ,Key_Delete         ,Key_LeftControl
+       Key_1 ,Key_2 ,Key_3 ,Key_4          ,Key_5
+      ,XXX   ,XXX   ,XXX   ,Key_LeftParen  ,Key_RightParen
+      ,XXX   ,XXX   ,XXX   ,XXX            ,XXX            ,XXX
+      ,___   ,___   ,XXX   ,XXX            ,XXX            ,XXX
 
-                   ,Key_PageUp   ,Key_7 ,Key_8      ,Key_9 ,Key_Backspace
-                   ,Key_PageDown ,Key_4 ,Key_5      ,Key_6 ,___
-      ,Key_And     ,Key_Star     ,Key_1 ,Key_2      ,Key_3 ,Key_Plus
-      ,Key_LeftAlt ,Key_Space    ,___   ,Key_Period ,Key_0 ,Key_Equals
+               ,Key_6   ,Key_7  ,Key_8            ,Key_9                ,Key_0
+               ,Key_LeftBracket ,Key_RightBracket ,Key_LeftCurlyBracket ,Key_RightCurlyBracket ,Key_Equals
+          ,___ ,Key_LeftArrow   ,Key_DownArrow    ,Key_UpArrow          ,Key_RightArrow        ,Key_Backslash
+          ,XXX ,___             ,XXX              ,Key_Backtick         ,XXX                   ,LockLayer(FUN)
    ),
 
   [UPPER] = KEYMAP_STACKED
   (
-       Key_Insert            ,Key_Home                 ,Key_UpArrow   ,Key_End        ,Key_PageUp
-      ,Key_Delete            ,Key_LeftArrow            ,Key_DownArrow ,Key_RightArrow ,Key_PageDown
-      ,M(MACRO_VERSION_INFO) ,Consumer_VolumeIncrement ,XXX           ,XXX            ,___ ,___
-      ,MoveToLayer(QWERTY)   ,Consumer_VolumeDecrement ,___           ,___            ,___ ,___
+       Key_F1         ,Key_F2 ,Key_F3 ,Key_F4  ,Key_F5
+      ,XXX            ,XXX    ,XXX    ,XXX     ,XXX
+      ,XXX            ,XXX    ,XXX    ,XXX     ,XXX    ,XXX
+      ,LockLayer(FUN) ,XXX    ,XXX    ,XXX     ,XXX    ,XXX
 
-                ,Key_UpArrow   ,Key_F7              ,Key_F8          ,Key_F9         ,Key_F10
-                ,Key_DownArrow ,Key_F4              ,Key_F5          ,Key_F6         ,Key_F11
-      ,___      ,XXX           ,Key_F1              ,Key_F2          ,Key_F3         ,Key_F12
-      ,___      ,___           ,MoveToLayer(QWERTY) ,MoveToLayer(COLEMAK) ,Key_ScrollLock ,Consumer_PlaySlashPause
+               ,Key_F6         ,Key_F7       ,Key_F8      ,Key_F9         ,Key_F10
+               ,Key_Home       ,Key_End      ,Key_PageUp  ,Key_PageDown   ,Key_F11
+          ,XXX ,Key_LeftArrow ,Key_DownArrow ,Key_UpArrow ,Key_RightArrow ,Key_F12
+          ,XXX ,XXX           ,XXX           ,XXX         ,XXX            ,___
+   ),
+
+  [FUN] = KEYMAP_STACKED
+  (
+       XXX            ,XXX    ,XXX    ,XXX     ,XXX
+      ,XXX            ,XXX    ,XXX    ,XXX     ,XXX
+      ,XXX            ,XXX    ,XXX    ,XXX     ,XXX    ,XXX
+      ,LockLayer(FUN) ,XXX    ,XXX    ,XXX     ,XXX    ,XXX
+
+               ,XXX            ,XXX           ,XXX         ,XXX            ,XXX
+               ,Key_Home       ,Key_End       ,Key_PageUp  ,Key_PageDown   ,XXX
+          ,XXX ,Key_LeftArrow  ,Key_DownArrow ,Key_UpArrow ,Key_RightArrow ,XXX
+          ,XXX ,XXX            ,XXX           ,XXX         ,XXX            ,LockLayer(FUN)
    )
 )
 // clang-format on
 
 KALEIDOSCOPE_INIT_PLUGINS(
-  EscapeOneShot,
-  EEPROMSettings,
-  EEPROMKeymap,
-  Focus,
-  FocusEEPROMCommand,
-  FocusSettingsCommand,
-  Qukeys,
-  SpaceCadet,
-  OneShot,
-  Macros,
-  DynamicMacros,
-  MouseKeys,
-  EscapeOneShotConfig,
-  FirmwareVersion,
-  LayerNames,
-  SpaceCadetConfig,
-  OneShotConfig,
-  MouseKeysConfig);
-
-const macro_t *macroAction(uint8_t macro_id, KeyEvent &event) {
-  if (keyToggledOn(event.state)) {
-    switch (macro_id) {
-    case MACRO_QWERTY:
-      // This macro is currently unused, but is kept around for compatibility
-      // reasons. We used to use it in place of `MoveToLayer(QWERTY)`, but no
-      // longer do. We keep it so that if someone still has the old layout with
-      // the macro in EEPROM, it will keep working after a firmware update.
-      Layer.move(QWERTY);
-      break;
-    case MACRO_VERSION_INFO:
-      Macros.type(PSTR("Keyboardio Atreus - Kaleidoscope "));
-      Macros.type(PSTR(BUILD_INFORMATION));
-      break;
-    default:
-      break;
-    }
-  }
-  return MACRO_NONE;
-}
+  Qukeys
+  );
 
 void setup() {
   Kaleidoscope.setup();
-  EEPROMKeymap.setup(9);
+  //EEPROMKeymap.setup(9);
 
-  DynamicMacros.reserve_storage(48);
-
-  LayerNames.reserve_storage(63);
-
-  Layer.move(EEPROMSettings.default_layer());
-
-  // To avoid any surprises, SpaceCadet is turned off by default. However, it
-  // can be permanently enabled via Chrysalis, so we should only disable it if
-  // no configuration exists.
-  SpaceCadetConfig.disableSpaceCadetIfUnconfigured();
+  QUKEYS(
+    kaleidoscope::plugin::Qukey(0, KeyAddr(3, 0), Key_LeftParen),
+    kaleidoscope::plugin::Qukey(0, KeyAddr(3, 11), Key_RightParen),
+  )
 }
 
 void loop() {
