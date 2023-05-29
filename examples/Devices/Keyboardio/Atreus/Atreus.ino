@@ -148,7 +148,6 @@ KALEIDOSCOPE_INIT_PLUGINS(
 
 void setup() {
   Kaleidoscope.setup();
-  //EEPROMKeymap.setup(9);
 
   QUKEYS(
     kaleidoscope::plugin::Qukey(0, KeyAddr(3, 0), Key_LeftParen),
